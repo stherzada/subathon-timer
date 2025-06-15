@@ -26,7 +26,7 @@ This modified version adds that crucial pause functionality while maintaining al
 2. Extract the contents
 3. Follow the installation steps below:
 
-[GIF will be added here showing the installation process]
+![Instruções de Instalação](./image%20(dont_need_use_this)/ezgif-170f510833c7cc.gif)
 
 ### Step-by-step Installation:
 
@@ -73,7 +73,7 @@ Feel free to contribute to this project by:
 
 ## 📜 License
 
-This project is a modification of the StreamElements subathon timer. Please refer to StreamElements' terms of service for usage guidelines.
+This project is a modification of the [StreamElements](https://github.com/StreamElements) subathon timer. 
 
 ## 🙏 Acknowledgments
 
