@@ -7,16 +7,16 @@ let addOnZero = false;
 let stopOnZero = false;
 let start;
 let isPaused = false;
-let pausedRemainingSeconds = 0; // tempo congelado durante o pause
+let pausedRemainingSeconds = 0; // frozen time during pause
 
 function countdown(seconds) {
     if (seconds === 0) return;
 
     if (isPaused) {
-        // Se estiver pausado, adiciona o tempo ao pausedRemainingSeconds
+        // If paused, add time to pausedRemainingSeconds
         pausedRemainingSeconds += seconds;
 
-        // Limitar pausedRemainingSeconds para não ultrapassar maxTime
+        // Limit pausedRemainingSeconds to not exceed maxTime
         const now = new Date();
         const maxPausedTime = Math.floor((maxTime - now) / 1000);
         if (pausedRemainingSeconds > maxPausedTime) {
@@ -24,10 +24,10 @@ function countdown(seconds) {
         }
 
         saveState();
-        return; // Não atualiza o timer ativo nem a UI pois está pausado
+        return; // Don't update active timer or UI while paused
     }
 
-    // Se não estiver pausado, atualiza start normalmente
+    // If not paused, update start normally
     let toCountDown = start || new Date();
 
     if (stopOnZero && toCountDown < new Date()) return;
@@ -46,7 +46,7 @@ function countdown(seconds) {
     start = toCountDown;
 
     $('#countdown').countdown(toCountDown, function (event) {
-        if (isPaused) return; // Não atualiza o display se estiver pausado
+        if (isPaused) return; // Don't update display if paused
 
         if (event.type === "finish") {
             $(this).html(fieldData.onComplete);
@@ -62,12 +62,12 @@ function pauseTimer() {
     isPaused = true;
     const now = new Date();
 
-    // Calcula tempo restante e salva em pausedRemainingSeconds
+    // Calculate remaining time and save in pausedRemainingSeconds
     pausedRemainingSeconds = Math.max(0, Math.floor((start - now) / 1000));
 
     $('#countdown').countdown('pause');
 
-    // Atualiza a UI para mostrar tempo congelado
+    // Update UI to show frozen time
     updateCountdownDisplay(pausedRemainingSeconds);
 
     saveState();
@@ -88,7 +88,7 @@ function resumeTimer() {
 
     $('#countdown').countdown('resume');
 
-    countdown(1); // Atualiza a UI com o timer rodando
+    countdown(1); // Update UI with running timer
     saveState();
 }
 
@@ -231,7 +231,7 @@ function loadState() {
             }
 
             if (isPaused) {
-                // Se estiver pausado, mostra o tempo congelado
+                // If paused, show frozen time
                 updateCountdownDisplay(pausedRemainingSeconds);
             } else {
                 if (current > 0) {
