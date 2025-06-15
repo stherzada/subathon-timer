@@ -26,10 +26,11 @@ This modified version adds that crucial pause functionality while maintaining al
 2. Extract the contents
 3. Follow the installation steps below:
 
-<p align="center">
-  <img src="./image(dont_need_use_this)/ezgif-170f510833c7cc.gif" alt="Instruções de Instalação" width="600" />
+<p>
+  <img src="./image(dont_need_use_this)/ezgif-170f510833c7cc.gif" alt="Instruções de Instalação"  />
 </p>
 
+---
 ### Step-by-step Installation:
 
 1. Log into your StreamElements account
