@@ -26,7 +26,9 @@ This modified version adds that crucial pause functionality while maintaining al
 2. Extract the contents
 3. Follow the installation steps below:
 
-![Instruções de Instalação](./image%20(dont_need_use_this)/ezgif-170f510833c7cc.gif)
+<p align="center">
+  <img src="./image(dont_need_use_this)/ezgif-170f510833c7cc.gif" alt="Instruções de Instalação" width="600" />
+</p>
 
 ### Step-by-step Installation:
 
