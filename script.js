@@ -8,6 +8,8 @@ let stopOnZero = false;
 let start;
 let isPaused = false;
 let pausedRemainingSeconds = 0; 
+let timerInterval = null; 
+
 function countdown(seconds) {
     if (seconds === 0) return;
 
@@ -41,22 +43,37 @@ function countdown(seconds) {
     toCountDown = new Date(a[0].getTime());
     start = toCountDown;
 
-    $('#countdown').countdown(toCountDown, function (event) {
-        if (isPaused) return; 
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
 
-        if (event.type === "finish") {
-            $(this).html(fieldData.onComplete);
-        } else {
-            const totalSeconds = Math.floor((new Date(toCountDown) - new Date()) / 1000);
-            if (totalSeconds > 0) {
-                updateCountdownDisplay(totalSeconds);
-            } else {
-                updateCountdownDisplay(0);
-            }
-        }
-    });
+   
+    startCustomTimer();
 
     saveState();
+}
+
+function startCustomTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+
+    timerInterval = setInterval(() => {
+        if (isPaused) return; 
+
+        const now = new Date();
+        const totalSeconds = Math.floor((start - now) / 1000);
+        
+        if (totalSeconds <= 0) {
+            // Timer finished
+            clearInterval(timerInterval);
+            timerInterval = null;
+            $('#countdown').html(fieldData.onComplete);
+            updateCountdownDisplay(0);
+        } else {
+            updateCountdownDisplay(totalSeconds);
+        }
+    }, 1000);
 }
 
 function pauseTimer() {
@@ -65,7 +82,11 @@ function pauseTimer() {
 
     pausedRemainingSeconds = Math.max(0, Math.floor((start - now) / 1000));
 
-    $('#countdown').countdown('pause');
+    // Stop the custom timer
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
 
     updateCountdownDisplay(pausedRemainingSeconds);
 
@@ -85,22 +106,8 @@ function resumeTimer() {
     const now = new Date();
     start = new Date(now.getTime() + pausedRemainingSeconds * 1000);
     
-    $('#countdown').countdown(start, function (event) {
-        if (isPaused) return; 
-
-        if (event.type === "finish") {
-            $(this).html(fieldData.onComplete);
-        } else {
-            // Custom formatting to support more than 24 hours
-            const totalSeconds = Math.floor((new Date(start) - new Date()) / 1000);
-            if (totalSeconds > 0) {
-                updateCountdownDisplay(totalSeconds);
-            } else {
-                // Timer finished or negative, show 00:00:00
-                updateCountdownDisplay(0);
-            }
-        }
-    });
+    // Start the custom timer
+    startCustomTimer();
     
     pausedRemainingSeconds = 0;
     saveState();
@@ -212,6 +219,13 @@ window.addEventListener('onWidgetLoad', function (obj) {
     loadState();
 });
 
+window.addEventListener('beforeunload', function() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+});
+
 function saveState() {
     SE_API.store.set('marathon', {
         current: start,
@@ -245,21 +259,20 @@ function loadState() {
             }
 
             if (isPaused) {
-                // If paused, show frozen time
                 updateCountdownDisplay(pausedRemainingSeconds);
             } else {
                 if (current > 0) {
                     current = Math.max(current, minTime);
                     start = new Date(current);
-                    countdown(1);
+                    startCustomTimer();
                 } else {
                     start = minTime;
-                    countdown(0);
+                    updateCountdownDisplay(0);
                 }
             }
         } else {
             start = minTime;
-            countdown(0);
+            updateCountdownDisplay(0);
         }
     });
 }
