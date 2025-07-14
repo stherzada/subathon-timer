@@ -1,22 +1,19 @@
 // MULTIPLIERS:
 let fieldData;
 
-let maxTime = new Date(); // Time cap
+let maxTime = new Date(); 
 let minTime = new Date();
 let addOnZero = false;
 let stopOnZero = false;
 let start;
 let isPaused = false;
-let pausedRemainingSeconds = 0; // frozen time during pause
-
+let pausedRemainingSeconds = 0; 
 function countdown(seconds) {
     if (seconds === 0) return;
 
     if (isPaused) {
-        // If paused, add time to pausedRemainingSeconds
         pausedRemainingSeconds += seconds;
 
-        // Limit pausedRemainingSeconds to not exceed maxTime
         const now = new Date();
         const maxPausedTime = Math.floor((maxTime - now) / 1000);
         if (pausedRemainingSeconds > maxPausedTime) {
@@ -24,10 +21,9 @@ function countdown(seconds) {
         }
 
         saveState();
-        return; // Don't update active timer or UI while paused
+        return; 
     }
 
-    // If not paused, update start normally
     let toCountDown = start || new Date();
 
     if (stopOnZero && toCountDown < new Date()) return;
@@ -38,7 +34,7 @@ function countdown(seconds) {
         toCountDown = a[1];
     }
 
-    toCountDown.setSeconds(toCountDown.getSeconds() + seconds);
+    toCountDown.setTime(toCountDown.getTime() + seconds * 1000);
 
     let a = [toCountDown, maxTime];
     a.sort((a, b) => Date.parse(a) - Date.parse(b));
@@ -46,12 +42,17 @@ function countdown(seconds) {
     start = toCountDown;
 
     $('#countdown').countdown(toCountDown, function (event) {
-        if (isPaused) return; // Don't update display if paused
+        if (isPaused) return; 
 
         if (event.type === "finish") {
             $(this).html(fieldData.onComplete);
         } else {
-            $(this).html(event.strftime('%H:%M:%S'));
+            const totalSeconds = Math.floor((new Date(toCountDown) - new Date()) / 1000);
+            if (totalSeconds > 0) {
+                updateCountdownDisplay(totalSeconds);
+            } else {
+                updateCountdownDisplay(0);
+            }
         }
     });
 
@@ -62,19 +63,18 @@ function pauseTimer() {
     isPaused = true;
     const now = new Date();
 
-    // Calculate remaining time and save in pausedRemainingSeconds
     pausedRemainingSeconds = Math.max(0, Math.floor((start - now) / 1000));
 
     $('#countdown').countdown('pause');
 
-    // Update UI to show frozen time
     updateCountdownDisplay(pausedRemainingSeconds);
 
     saveState();
 }
 
 function updateCountdownDisplay(seconds) {
-    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const hours = Math.floor(seconds / 3600);
+    const h = hours.toString().padStart(2, '0'); 
     const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
     const s = (seconds % 60).toString().padStart(2, '0');
     $('#countdown').html(`${h}:${m}:${s}`);
@@ -84,11 +84,25 @@ function resumeTimer() {
     isPaused = false;
     const now = new Date();
     start = new Date(now.getTime() + pausedRemainingSeconds * 1000);
+    
+    $('#countdown').countdown(start, function (event) {
+        if (isPaused) return; 
+
+        if (event.type === "finish") {
+            $(this).html(fieldData.onComplete);
+        } else {
+            // Custom formatting to support more than 24 hours
+            const totalSeconds = Math.floor((new Date(start) - new Date()) / 1000);
+            if (totalSeconds > 0) {
+                updateCountdownDisplay(totalSeconds);
+            } else {
+                // Timer finished or negative, show 00:00:00
+                updateCountdownDisplay(0);
+            }
+        }
+    });
+    
     pausedRemainingSeconds = 0;
-
-    $('#countdown').countdown('resume');
-
-    countdown(1); // Update UI with running timer
     saveState();
 }
 
